@@ -1,0 +1,48 @@
+services:
+  # === Application ===
+  app:
+    image: yiweeeee/yiwee-flask:1.2
+    working_dir: /app
+    restart: unless-stopped
+    volumes:
+      - ./app:/app # host dir:container dir
+    environment:
+      DB_HOST: mysql8 # specify the service name (not ip address)
+      DB_NAME: ${DB_NAME:?請在 .env 設定 DB_NAME}
+      DB_USER: ${DB_USER:?請在 .env 設定 DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD:?請在 .env 設定 DB_PASSWORD}
+    ports:
+      - "5001:5001" # host port:container port
+    depends_on:
+      - mysql8 # wait for 'mysql8' service to be ready before starting
+
+  # === Database ===
+  mysql8:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?請在 .env 設定 MYSQL_ROOT_PASSWORD} # root password (required)
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306" # host port: container port
+    volumes:
+      - mysql8-data:/var/lib/mysql
+
+  mysql9:
+    image: mysql:9.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql9-data:/var/lib/mysql
+
+volumes:
+  mysql8-data:
+  mysql9-data:
